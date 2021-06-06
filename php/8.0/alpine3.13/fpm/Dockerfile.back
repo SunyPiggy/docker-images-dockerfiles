@@ -261,6 +261,7 @@ RUN set -eux; \
     libmemcached-dev \ 
     zlib-dev \
     openssl-dev \
+	&& pecl update-channels \
     && pecl install igbinary \
     && pecl install memcached-3.1.5 \
     && pecl install redis-5.3.4 \

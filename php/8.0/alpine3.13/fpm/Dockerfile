@@ -4,7 +4,7 @@
 # PLEASE DO NOT EDIT IT DIRECTLY.
 #
 
-FROM liqiankun/alpine:latest
+FROM liqiankun/alpine:3.13
 
 # dependencies required for running "phpize"
 # these get automatically installed and removed by "docker-php-ext-*" (unless they're already installed)
@@ -62,9 +62,9 @@ ENV PHP_LDFLAGS="-Wl,-O1 -pie"
 
 ENV GPG_KEYS 1729F83938DA44E27BA0F4D3DBDB397470D12172 BFDDD28642824F8118EF77909B67A5C12229118F
 
-ENV PHP_VERSION 8.0.6
-ENV PHP_URL="https://www.php.net/distributions/php-8.0.6.tar.xz" PHP_ASC_URL="https://www.php.net/distributions/php-8.0.6.tar.xz.asc"
-ENV PHP_SHA256="e9871d3b6c391fe9e89f86f6334852dcc10eeaaa8d5565beb8436e7f0cf30e20"
+ENV PHP_VERSION 8.0.7
+ENV PHP_URL="https://www.php.net/distributions/php-8.0.7.tar.xz" PHP_ASC_URL="https://www.php.net/distributions/php-8.0.7.tar.xz.asc"
+ENV PHP_SHA256="d5fc2e4fc780a32404d88c360e3e0009bc725d936459668e9c2ac992f2d83654"
 
 RUN set -eux; \
 	\
@@ -195,8 +195,11 @@ RUN set -eux; \
 	)"; \
 	apk add --no-cache $runDeps; \
 	\
+	apk del --no-network .build-deps; \
+	\
 	# update pecl channel definitions https://github.com/docker-library/php/issues/443
 	pecl update-channels; \
+	rm -rf /tmp/pear ~/.pearrc; \
 	\
 	# smoke test
 	php --version
@@ -244,20 +247,31 @@ RUN set -eux; \
 	echo 'listen = 9000'; \
 	} | tee php-fpm.d/zz-docker.conf
 
-# sodium was built as a shared module (so that it can be replaced later if so desired), so let's enable it too (https://github.com/docker-library/php/issues/598)
-RUN set -eux; \
-	cd /tmp/ \
-	&& pecl update-channels \
-	&& pecl install igbinary \
-	&& pecl install memcached-3.1.5 \
-	&& pecl install redis-5.3.4 \
-	&& pecl install swoole-4.6.7 \
-	&& pecl install xdebug \
-	&& docker-php-ext-enable igbinary memcached redis swoole xdebug \
-	&& rm -rf /tmp/* \
-	&& apk del --no-network .build-deps \
-	&& rm -rf /var/cache/apk/* \
-	&& rm -rf /tmp/pear ~/.pearrc;
+RUN set -eux;\
+	apk add --no-cache --virtual .build-deps \
+	$PHPIZE_DEPS \
+	; \ 
+    cd /tmp/; \
+    pecl install igbinary; \
+    docker-php-ext-enable igbinary; \
+    rm -rf /tmp/* \
+    && apk del --no-network .build-deps \
+	&& rm -rf /var/cache/apk/*
+RUN set -eux;\
+	apk add --no-cache --virtual .build-deps \
+	$PHPIZE_DEPS \
+	zlib-dev \
+	libmemcached-dev \
+	; \ 
+    cd /tmp/; \
+    pecl install memcached-3.1.5; \
+    pecl install redis-5.3.4; \
+    pecl install swoole-4.6.7; \
+    pecl install xdebug; \
+    docker-php-ext-enable memcached redis swoole xdebug; \
+    rm -rf /tmp/* \
+    && apk del --no-network .build-deps \
+	&& rm -rf /var/cache/apk/*	
 # Override stop signal to stop process gracefully
 # https://github.com/php/php-src/blob/17baa87faddc2550def3ae7314236826bc1b1398/sapi/fpm/php-fpm.8.in#L163
 STOPSIGNAL SIGQUIT

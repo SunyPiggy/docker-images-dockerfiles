@@ -4,7 +4,7 @@
 # PLEASE DO NOT EDIT IT DIRECTLY.
 #
 
-FROM liqiankun/alpine:latest
+FROM liqiankun/alpine:3.13
 
 # dependencies required for running "phpize"
 # these get automatically installed and removed by "docker-php-ext-*" (unless they're already installed)
@@ -26,7 +26,9 @@ RUN apk add --no-cache \
 		tar \
 		xz \
 # https://github.com/docker-library/php/issues/494
-		openssl
+		openssl \
+		libstdc++ \
+		libmemcached
 
 # ensure www-data user exists
 RUN set -eux; \
@@ -60,9 +62,9 @@ ENV PHP_LDFLAGS="-Wl,-O1 -pie"
 
 ENV GPG_KEYS 42670A7FE4D0441C8E4632349E4FDC074A4EF02D 5A52880781F755608BF815FC910DEB46F53EA312
 
-ENV PHP_VERSION 7.4.19
-ENV PHP_URL="https://www.php.net/distributions/php-7.4.19.tar.xz" PHP_ASC_URL="https://www.php.net/distributions/php-7.4.19.tar.xz.asc"
-ENV PHP_SHA256="6c17172c4a411ccb694d9752de899bb63c72a0a3ebe5089116bc13658a1467b2"
+ENV PHP_VERSION 7.4.20
+ENV PHP_URL="https://www.php.net/distributions/php-7.4.20.tar.xz" PHP_ASC_URL="https://www.php.net/distributions/php-7.4.20.tar.xz.asc"
+ENV PHP_SHA256="1fa46ca6790d780bf2cb48961df65f0ca3640c4533f0bca743cd61b71cb66335"
 
 RUN set -eux; \
 	\
@@ -110,6 +112,7 @@ RUN set -eux; \
 		libpng-dev \
 		libjpeg-turbo-dev \
 		freetype-dev \
+		libmemcached-dev \
 	; \
 	\
 	export CFLAGS="$PHP_CFLAGS" \
@@ -245,30 +248,30 @@ RUN set -eux; \
 		echo 'listen = 9000'; \
 	} | tee php-fpm.d/zz-docker.conf
 
-RUN set -eux; \
+RUN set -eux;\
+	apk add --no-cache --virtual .build-deps \
+	$PHPIZE_DEPS \
+	; \ 
     cd /tmp/; \
-    apk add --no-cache libstdc++ libmemcached \
-    && apk add --no-cache --virtual .build-deps2 \
-    $PHPIZE_DEPS \
-    argon2-dev \
-    coreutils \
-    curl-dev \
-    libedit-dev \
-    libsodium-dev \
-    libxml2-dev \
-    openssl-dev \
-    sqlite-dev \
-    libmemcached-dev \ 
-    zlib-dev \
-    openssl-dev \
-    && pecl install igbinary \
-    && pecl install memcached-3.1.5 \
-    && pecl install redis-5.3.4 \
-    && pecl install swoole-4.6.7 \
-    && pecl install xdebug \
-    && docker-php-ext-enable igbinary memcached redis swoole xdebug \
-    && rm -rf /tmp/* \
-    && apk del --no-network .build-deps2 \
+    pecl install igbinary; \
+    docker-php-ext-enable igbinary; \
+    rm -rf /tmp/* \
+    && apk del --no-network .build-deps \
+	&& rm -rf /var/cache/apk/*
+RUN set -eux;\
+	apk add --no-cache --virtual .build-deps \
+	$PHPIZE_DEPS \
+	zlib-dev \
+	libmemcached-dev \
+	; \ 
+    cd /tmp/; \
+    pecl install memcached-3.1.5; \
+    pecl install redis-5.3.4; \
+    pecl install swoole-4.6.7; \
+    pecl install xdebug; \
+    docker-php-ext-enable memcached redis swoole xdebug; \
+    rm -rf /tmp/* \
+    && apk del --no-network .build-deps \
 	&& rm -rf /var/cache/apk/*
 # Override stop signal to stop process gracefully
 # https://github.com/php/php-src/blob/17baa87faddc2550def3ae7314236826bc1b1398/sapi/fpm/php-fpm.8.in#L163
