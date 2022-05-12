@@ -4,7 +4,7 @@
 # PLEASE DO NOT EDIT IT DIRECTLY.
 #
 
-FROM liqiankun/alpine:3.13
+FROM liqiankun/alpine:3.15
 
 # dependencies required for running "phpize"
 # these get automatically installed and removed by "docker-php-ext-*" (unless they're already installed)
@@ -32,7 +32,7 @@ RUN apk add --no-cache \
 
 # ensure www-data user exists
 RUN set -eux; \
-	addgroup -g 82 -S www-data; \
+	#addgroup -g 82 -S www-data; \
 	adduser -u 82 -D -S -G www-data www-data
 # 82 is the standard uid/gid for "www-data" in Alpine
 # https://git.alpinelinux.org/aports/tree/main/apache2/apache2.pre-install?h=3.9-stable
@@ -83,7 +83,7 @@ RUN set -eux; \
 	curl -fsSL -o php.tar.xz.asc "$PHP_ASC_URL"; \
 	export GNUPGHOME="$(mktemp -d)"; \
 	for key in $GPG_KEYS; do \
-	gpg --batch --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
+		gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key"; \
 	done; \
 	gpg --batch --verify php.tar.xz.asc php.tar.xz; \
 	gpgconf --kill all; \
@@ -147,6 +147,7 @@ RUN set -eux; \
 	--enable-bcmath \
 	--enable-sockets \
 	--enable-soap \
+	--enable-pcntl \
 	# https://wiki.php.net/rfc/argon2_password_hash (7.2+)
 	--with-password-argon2 \
 	# https://wiki.php.net/rfc/libsodium
