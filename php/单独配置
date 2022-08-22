@@ -1,0 +1,25 @@
+RUN set -eux;\
+	apk add --no-cache --virtual .build-deps \
+	$PHPIZE_DEPS \
+	; \ 
+    cd /tmp/; \
+    pecl install igbinary; \
+    docker-php-ext-enable igbinary; \
+    rm -rf /tmp/* \
+    && apk del --no-network .build-deps \
+	&& rm -rf /var/cache/apk/*
+RUN set -eux;\
+	apk add --no-cache --virtual .build-deps \
+	$PHPIZE_DEPS \
+	zlib-dev \
+	libmemcached-dev \
+	; \ 
+    cd /tmp/; \
+    pecl install memcached-3.1.5; \
+    pecl install redis-5.3.4; \
+    pecl install swoole-4.6.7; \
+    pecl install xdebug; \
+    docker-php-ext-enable memcached redis swoole xdebug; \
+    rm -rf /tmp/* \
+    && apk del --no-network .build-deps \
+	&& rm -rf /var/cache/apk/*
