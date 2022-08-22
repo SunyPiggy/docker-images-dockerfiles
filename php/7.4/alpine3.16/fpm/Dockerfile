@@ -289,7 +289,7 @@ RUN set -eux;\
     cd /tmp/; \
     pecl install memcached; \
     pecl install redis; \
-    pecl install swoole; \
+    pecl install swoole-4.8.11; \
     pecl install xdebug; \
     docker-php-ext-enable memcached redis swoole xdebug; \
     rm -rf /tmp/* \
