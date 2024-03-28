@@ -235,10 +235,12 @@ RUN set -eux; \
 		# for some reason, upstream's php-fpm.conf.default has "include=NONE/etc/php-fpm.d/*.conf"
 		sed 's!=NONE/!=!g' php-fpm.conf.default | tee php-fpm.conf > /dev/null; \
 		cp php-fpm.d/www.conf.default php-fpm.d/www.conf; \
+		cp php/php.ini-development php/php.ini; \
 	else \
 		# PHP 5.x doesn't use "include=" by default, so we'll create our own simple config that mimics PHP 7+ for consistency
 		mkdir php-fpm.d; \
 		cp php-fpm.conf.default php-fpm.d/www.conf; \
+		cp php/php.ini-development php/php.ini; \
 		{ \
 			echo '[global]'; \
 			echo 'include=etc/php-fpm.d/*.conf'; \
