@@ -3,7 +3,7 @@
 #
 # PLEASE DO NOT EDIT IT DIRECTLY.
 #
-FROM liqiankun/alpine:3.16
+FROM liqiankun/alpine:3.19
 
 LABEL maintainer="NGINX Docker Maintainers <docker-maint@nginx.com>"
 
