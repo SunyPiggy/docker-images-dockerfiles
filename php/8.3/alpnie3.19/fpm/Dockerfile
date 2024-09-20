@@ -276,19 +276,32 @@ RUN set -eux; \
 	} > "$PHP_INI_DIR/conf.d/docker-fpm.ini"
 #自定义配置 安装 igbinary memcached，redis，swoole，xdebug
 RUN set -eux;\
+	apk update && \
 	apk add --no-cache --virtual .build-deps \
 	$PHPIZE_DEPS \
+	curl-dev \
 	zlib-dev \
-	libmemcached-dev \
+	sqlite-dev \
+	libpq \
+	pcre-dev \
+	pcre2-dev \
+	postgresql-dev \
+	unixodbc-dev \
+	# libmemcached-dev \
 	linux-headers \
+	brotli-dev  \
+	nghttp2 \
+	# nghttp2-libs \
+	nghttp2-dev \
 	; \ 
     cd /tmp/; \
-	pecl install igbinary; \
-    pecl install memcached; \
-    pecl install redis; \
-    pecl install swoole; \
+	pecl channel-update pecl.php.net; \
+	# pecl install igbinary; \
+    # pecl install memcached; \
+    # pecl install redis; \
+    pecl install --configureoptions 'enable-sockets="yes" enable-openssl="yes" enable-mysqlnd="yes" enable-swoole-curl="yes" enable-cares="yes" enable-brotli="no" enable-swoole-pgsql="yes" with-swoole-odbc="unixODBC,/usr"  enable-swoole-sqlite="yes"' swoole; \
     pecl install xdebug; \
-    docker-php-ext-enable igbinary memcached redis swoole xdebug; \
+    docker-php-ext-enable  swoole xdebug; \
     rm -rf /tmp/* \
     && apk del --no-network .build-deps \
 	&& rm -rf /var/cache/apk/*	

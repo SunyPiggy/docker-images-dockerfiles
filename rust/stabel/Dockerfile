@@ -1,5 +1,5 @@
-FROM alpine:3.20
-# ADD alpine-minirootfs-3.20.3-x86.tar.gz /
+FROM rust:1.81.0-alpine3.20
+WORKDIR /app
 ENV TZ=Asia/Shanghai
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
     && set -xe  \
@@ -8,4 +8,3 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
     && cp /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo ${TZ} > /etc/timezone \
     && rm -rf /tmp/*;
-CMD ["/bin/sh"]
