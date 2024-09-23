@@ -31,21 +31,16 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 	&& apk add --no-cache --update --virtual .tzdata tzdata\
 	&& cp /usr/share/zoneinfo/${TZ} /etc/localtime \
 	&& echo ${TZ} > /etc/timezone; \
-	apk add --no-cache libstdc++ libpq  libmemcached-dev && \
+	apk add --no-cache libstdc++ libpq-dev  libmemcached-dev libpng-dev libjpeg-turbo-dev freetype-dev  unixodbc-dev && \
 	apk add --no-cache --virtual .build-deps \
 	$PHPIZE_DEPS \
 	libzip-dev \
-	libpng-dev \
-	libjpeg-turbo-dev \
-	freetype-dev \
 	curl-dev \
 	zlib-dev \
 	sqlite-dev \
-	libpq \
 	pcre-dev \
 	pcre2-dev \
 	postgresql-dev \
-	unixodbc-dev \
 	linux-headers \
 	brotli-dev  \
 	nghttp2 \
@@ -59,6 +54,10 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 	soap \
 	pcntl \
 	gd \
+	pdo_mysql \
+	mysqli \
+	pdo_pgsql \
+	pgsql \
 	opcache; \
 	pecl channel-update pecl.php.net; \
 	pecl install igbinary; \
