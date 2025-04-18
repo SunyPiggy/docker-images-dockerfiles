@@ -4,7 +4,7 @@
 # PLEASE DO NOT EDIT IT DIRECTLY.
 #
 
-FROM php:8.3.11-fpm-alpine3.20
+FROM php:8.4.6-fpm-alpine3.21
 
 	#自定义配置
 	# zlib-dev \

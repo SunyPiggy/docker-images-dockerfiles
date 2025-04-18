@@ -1,4 +1,4 @@
-FROM golang:1.24.2-alpine3.21
+FROM node:22.14.0-alpine3.21
 WORKDIR /app
 ENV TZ=Asia/Shanghai
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
@@ -7,4 +7,6 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
     && apk add --no-cache --update --virtual .tzdata tzdata\
     && cp /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo ${TZ} > /etc/timezone \
+    && npm config set registry https://registry.npmmirror.com \
     && rm -rf /tmp/*;
+CMD ["node"]
