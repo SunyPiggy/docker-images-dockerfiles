@@ -1,4 +1,4 @@
-FROM golang:1.24.2-alpine3.21
+FROM golang:1.24.3-alpine3.21
 WORKDIR /app
 ENV TZ=Asia/Shanghai
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \

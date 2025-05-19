@@ -1,4 +1,4 @@
-FROM rust:1.81.0-alpine3.20
+FROM rust:1.87.0-alpine3.21
 WORKDIR /app
 ENV TZ=Asia/Shanghai
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
